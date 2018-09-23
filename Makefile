@@ -15,32 +15,41 @@
 #  NOTE: on Fedora, need to link blas and lapack properly, where X.X.X is some version numbers
 #  Linking Command Example: sudo ln -s /usr/lib64/liblapack.so.X.X.X /usr/lib64/liblapack.so
 #  blas Example: sudo ln -s /usr/lib64/libopeblas64.so.X.X.X /usr/lib64/libblas.so
-#  Can also use -L to link to the explicit libary path 
-BLAS_LIB = -lblas
-LAPACK_LIB = -llapack
+#  Can also use -L to link to the explicit libary path
+# BLAS_LIB = -L$(MKLROOT)/lib/intel64 -liomp5 -lpthread
+# LAPACK_LIB =
+# BLAS_INC = -I${MKLROOT}/include
+# LAPACK_INC =
+
+BLAS_LIB = -L$(PROGRAMS_PATH)/ant_hpc/openblas/lib -lopenblas
+LAPACK_LIB =
+BLAS_INC = -I$(PROGRAMS_PATH)/ant_hpc/openblas/include
+LAPACK_INC =
 
 # Specify the flags for Lua headers and libraries (only needed for Lua frontend)
 # Recommended: build lua in the current directory, and link against this local version
 # LUA_INC = -I./lua-5.2.4/install/include
 # LUA_LIB = -L./lua-5.2.4/install/lib -llua -ldl -lm
-LUA_INC = -I./lua-5.2.4/install/include
-LUA_LIB = -L./lua-5.2.4/install/lib -llua -ldl -lm
+LUA_INC = -I$(PROGRAMS_PATH)/lua-5.3.4/src
+LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
 
 # OPTIONAL
 # Typically if installed,
 #  FFTW3_INC can be left empty
-#  FFTW3_LIB = -lfftw3 
+#  FFTW3_LIB = -lfftw3
 #  or, if Fedora and/or fftw is version 3 but named fftw rather than fftw3
-#  FTW3_LIB = -lfftw 
+#  FTW3_LIB = -lfftw
 #  May need to link libraries properly as with blas and lapack above
-FFTW3_INC =
-FFTW3_LIB = -lfftw3
+# FFTW3_INC =
+# FFTW3_LIB = -lfftw3
+FFTW3_INC = -I$(PROGRAMS_PATH)/ant_hpc/include
+FFTW3_LIB = -L$(PROGRAMS_PATH)/ant_hpc/lib -lfftw3
 
 # Typically,
 #  PTHREAD_INC = -DHAVE_UNISTD_H
 #  PTHREAD_LIB = -lpthread
-PTHREAD_INC = -DHAVE_UNISTD_H
-PTHREAD_LIB = -lpthread
+PTHREAD_INC =
+PTHREAD_LIB =
 
 # OPTIONAL
 # If not installed:
@@ -48,8 +57,8 @@ PTHREAD_LIB = -lpthread
 # Typically, if installed:
 #CHOLMOD_INC = -I/usr/include/suitesparse
 #CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
-CHOLMOD_INC = -I/usr/include/suitesparse
-CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
+# CHOLMOD_INC = -I/usr/include/suitesparse
+# CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
 
 # Specify the MPI library
 # For example, on Fedora: dnf  install openmpi-devel
@@ -59,44 +68,71 @@ CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
 #MPI_LIB = -L/usr/lib64/openmpi/lib/libmpi.so
 #MPI_INC = -I/usr/include/openmpi-x86_64/openmpi
 #MPI_LIB = -L/usr/lib64/openmpi/lib/libmpi.so
+MPI_INC =
+MPI_LIB =
 
 # Enable S4_TRACE debugging
-# values of 1, 2, 3 enable debugging, with verbosity increasing as 
+# values of 1, 2, 3 enable debugging, with verbosity increasing as
 # value increases. 0 to disable
 S4_DEBUG = 0
 S4_PROF = 0
 
-# Specify custom compilers if needed
+
+# If compiling with MPI, the following must be modified to the proper MPI compilers
+# CC = icc
+# CXX = icpc
+
+
+CC = gcc
 CXX = g++
-CC  = gcc
 
 #CFLAGS += -O3 -fPIC
-CFLAGS = -Wall -O3 -msse3 -msse2 -msse -fPIC
+# CFLAGS = -Wall -O3 -msse3 -msse2 -msse -fPIC
+#
+# CFLAGS   += -O3 -Wall -march=native -fcx-limited-range -fno-exceptions -fPIC
+# CXXFLAGS += -O3 -Wall -march=native -fcx-limited-range -fno-exceptions -fPIC
+CFLAGS   += -O3 -Wall -march=native -fPIC -fno-strict-aliasing
+CXXFLAGS += -O3 -Wall -march=native -fPIC -fno-strict-aliasing
+#
+# CFLAGS   += -fPIC -xHost -O3 -Wall -no-prec-div -fp-model fast=2 -fPIC -DMKL_ILP64 -mkl=parallel
+# CXXFLAGS += -fPIC -xHost -O3 -Wall -no-prec-div -fp-model fast=2 -fPIC -DMKL_ILP64 -mkl=parallel
+#
+#
+
+
 
 # options for Sampler module
-OPTFLAGS = -O3
+OPTFLAGS = -O3 -fPIC
 
-OBJDIR = ./build
+# OBJDIR = ./build
+OBJDIR = $(PROGRAMS_PATH)/S4_new/build_gnu_ant_hpc
 S4_BINNAME = $(OBJDIR)/S4
 S4_LIBNAME = $(OBJDIR)/libS4.a
 S4r_LIBNAME = $(OBJDIR)/libS4r.a
 
-#### Download, compile, and install boost serialization lib. 
+#### Download, compile, and install boost serialization lib.
 #### This should all work fine, you must modify BOOST_INC, BOOST_LIBS,
-#### and PREFIX if you want to install boost to a different location 
+#### and PREFIX if you want to install boost to a different location
 
 # Specify the paths to the boost include and lib directories
 BOOST_PREFIX=${CURDIR}/S4
 BOOST_INC = -I$(BOOST_PREFIX)/include
 BOOST_LIBS = -L$(BOOST_PREFIX)/lib/ -lboost_serialization
-BOOST_URL=https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.gz
+
+# BOOST_INC =
+# BOOST_LIBS =
+
+# # BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_system
+# BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_python
+# BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_numpy
+BOOST_URL=https://sourceforge.net/projects/boost/files/boost/1.67.0/boost_1_67_0.tar.gz
 BOOST_FILE=boost.tar.gz
 # Target for downloading boost from above URL
 $(BOOST_FILE):
 	wget $(BOOST_URL) -O $(BOOST_FILE)
 
 # Target for extracting boost from archive and compiling. Depends on download target above
-${CURDIR}/S4/lib: $(BOOST_FILE)  
+${CURDIR}/S4/lib: $(BOOST_FILE)
 	$(eval BOOST_DIR := $(shell tar tzf $(BOOST_FILE) | sed -e 's@/.*@@' | uniq))
 	@echo Boost dir is $(BOOST_DIR)
 	tar -xzvf $(BOOST_FILE)
@@ -110,32 +146,32 @@ boost: $(BOOST_PREFIX)/lib
 
 #### Set the compilation flags
 
-CPPFLAGS = -Wall -I. -IS4 -IS4/RNP -IS4/kiss_fft 
- 
+CPPFLAGS = -Wall -I. -IS4 -IS4/RNP -IS4/kiss_fft
+
 ifeq ($(S4_PROF), 1)
 CPPFLAGS += -g -pg
 endif
 
 ifeq ($(S4_DEBUG), 1)
-CPPFLAGS += -ggdb 
+CPPFLAGS += -ggdb
 endif
 
 ifeq ($(S4_DEBUG), 2)
 CPPFLAGS += -DENABLE_S4_TRACE
-CPPFLAGS += -ggdb 
+CPPFLAGS += -ggdb
 endif
 
 ifeq ($(S4_DEBUG), 3)
 CPPFLAGS += -DENABLE_S4_TRACE
 CPPFLAGS += -DDUMP_MATRICES
-CPPFLAGS += -ggdb 
+CPPFLAGS += -ggdb
 endif
 
 ifeq ($(S4_DEBUG), 4)
 CPPFLAGS += -DENABLE_S4_TRACE
 CPPFLAGS += -DDUMP_MATRICES
 CPPFLAGS += -DDUMP_MATRICES_LARGE
-CPPFLAGS += -ggdb 
+CPPFLAGS += -ggdb
 endif
 
 ifdef BOOST_INC
@@ -178,7 +214,7 @@ objdir:
 	mkdir -p $(OBJDIR)/S4k
 	mkdir -p $(OBJDIR)/S4r
 	mkdir -p $(OBJDIR)/modules
-	
+
 S4_LIBOBJS = \
 	$(OBJDIR)/S4k/S4.o \
 	$(OBJDIR)/S4k/rcwa.o \
@@ -278,7 +314,7 @@ $(OBJDIR)/S4k/convert.o: S4/convert.c
 $(OBJDIR)/S4k/Eigensystems.o: S4/RNP/Eigensystems.cpp
 	$(CXX) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
-	
+
 
 
 $(OBJDIR)/S4r/Material.o: S4r/Material.cpp S4r/Material.hpp S4r/Types.hpp
@@ -305,11 +341,11 @@ $(OBJDIR)/S4r/IRA.o: S4r/IRA.cpp S4r/IRA.hpp S4r/Types.hpp
 	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
 $(OBJDIR)/S4r/intersection.o: S4r/intersection.c S4r/intersection.h
 	$(CC) -c -O3 $< -o $@
-$(OBJDIR)/S4r/periodic_off2.o: S4r/periodic_off2.c S4r/periodic_off2.h 
+$(OBJDIR)/S4r/periodic_off2.o: S4r/periodic_off2.c S4r/periodic_off2.h
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 $(OBJDIR)/S4r/predicates.o: S4r/predicates.c
 	$(CC) -c -O3 $< -o $@
-	
+
 #### Lua Frontend
 
 $(OBJDIR)/S4k/main_lua.o: S4/main_lua.c objdir
@@ -328,18 +364,25 @@ S4rlua: objdir $(OBJDIR)/S4r/main_lua.o $(OBJDIR)/S4r/lua_named_arg.o $(OBJDIR)/
 
 sampler: FunctionSampler1D.so FunctionSampler2D.so
 FunctionSampler1D.so: modules/function_sampler_1d.c modules/function_sampler_1d.h modules/lua_function_sampler_1d.c
-	gcc -c $(OPTFLAGS) -fpic -Wall -I. modules/function_sampler_1d.c -o $(OBJDIR)/modules/function_sampler_1d.o
-	gcc $(OPTFLAGS) -shared -fpic -Wall $(LUA_INC) -o $(OBJDIR)/FunctionSampler1D.so $(OBJDIR)/modules/function_sampler_1d.o modules/lua_function_sampler_1d.c $(LUA_LIB)
+	gcc -c $(OPTFLAGS) -fPIC -Wall -I. modules/function_sampler_1d.c -o $(OBJDIR)/modules/function_sampler_1d.o
+	gcc $(OPTFLAGS) -shared -fPIC -Wall $(LUA_INC) -o $(OBJDIR)/FunctionSampler1D.so $(OBJDIR)/modules/function_sampler_1d.o modules/lua_function_sampler_1d.c $(LUA_LIB)
 FunctionSampler2D.so: modules/function_sampler_2d.c modules/function_sampler_2d.h modules/lua_function_sampler_2d.c
-	gcc -c $(OPTFLAGS) -fpic -Wall -I. modules/function_sampler_2d.c -o $(OBJDIR)/modules/function_sampler_2d.o
-	gcc -c -O2 -fpic -Wall -I. modules/predicates.c -o $(OBJDIR)/modules/mod_predicates.o
-	gcc $(OPTFLAGS) -shared -fpic -Wall $(LUA_INC) -o $(OBJDIR)/FunctionSampler2D.so $(OBJDIR)/modules/function_sampler_2d.o $(OBJDIR)/modules/mod_predicates.o modules/lua_function_sampler_2d.c $(LUA_LIB)
+	gcc -c $(OPTFLAGS) -fPIC -Wall -I. modules/function_sampler_2d.c -o $(OBJDIR)/modules/function_sampler_2d.o
+	gcc -c -O2 -fPIC -Wall -I. modules/predicates.c -o $(OBJDIR)/modules/mod_predicates.o
+	gcc $(OPTFLAGS) -shared -fPIC -Wall $(LUA_INC) -o $(OBJDIR)/FunctionSampler2D.so $(OBJDIR)/modules/function_sampler_2d.o $(OBJDIR)/modules/mod_predicates.o modules/lua_function_sampler_2d.c $(LUA_LIB)
 
 #### Python extension
 
-S4_pyext: objdir $(S4_LIBNAME)
-	sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME) "$(LIBS)" $(BOOST_PREFIX)
-	pip3 install --upgrade ./
+python: objdir $(S4_LIBNAME)
+	sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME) "$(LIBS)" $(BOOST_PREFIX) "$(CFLAGS)"
+	python setup.py build_ext -b $(OBJDIR) -t $(OBJDIR)/tmp
+	# pip3 install --upgrade ./
+
+cleanpy:
+	rm $(OBJDIR)/S4.cpython*
+	rm -rf $(OBJDIR)/tmp
+	rm $(OBJDIR)/libS4.a
+
 
 clean:
 	rm -rf $(OBJDIR)

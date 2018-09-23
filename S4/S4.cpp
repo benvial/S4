@@ -75,7 +75,7 @@ struct LayerBands{
 	std::complex<double> *kp; // size (2*glist.n)^2 (k-parallel matrix)
 	std::complex<double> *phi; // size (2*glist.n)^2
 	std::complex<double> *Epsilon2; // size (2*glist.n)^2 (dielectric/normal-field matrix)
-	std::complex<double> *Epsilon_inv; // size (glist.n)^2 inverse of usual dielectric Fourier coupling matrix. 
+	std::complex<double> *Epsilon_inv; // size (glist.n)^2 inverse of usual dielectric Fourier coupling matrix.
                                        // This is the same as \hat{\eta} in the notation of the paper i.e the Fourier
                                        // transform of 1/epsilon, and not 1 / \hat{epsilon}
                                        // TODO: Add big square matrix in eqn 35
@@ -172,7 +172,7 @@ struct LayerBands{
         ar & bs::make_nvp("kp_is_null",kp_is_null);
         S4_TRACE("Loaded kp_is_null\n");
         S4_TRACE("kp_is_null = %d\n", kp_is_null);
-        // Free memory and re-allocate 
+        // Free memory and re-allocate
         // int nn = n_G*n_G;
         // int n2 = 2*n_G;
         // int nn4 = 4*nn;
@@ -192,7 +192,7 @@ struct LayerBands{
         if(phi_is_null == 1){
             S4_TRACE("Load Phi is NULL\n");
             phi_size = 0;
-        } 
+        }
 
         q = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>)*(
         2*n + // for q
@@ -244,7 +244,7 @@ struct LayerBands{
         // Epsilon_inv = NULL;
         // Epsilon_inv = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>)*nn);
         S4_TRACE("Allocated band memory!\n");
-           
+
         // Now populate the arrays. Order here matters
         // for (size_t i = 0; i < n2; i++) {
         //     ar & bs::make_nvp("q",q[i]);
@@ -321,7 +321,7 @@ struct FieldCache{
 
 BOOST_SERIALIZATION_SPLIT_FREE(FieldCache)
 template<class Archive>
-void save(Archive &ar, const FieldCache &f, const unsigned int version) 
+void save(Archive &ar, const FieldCache &f, const unsigned int version)
 {
     int P_is_null;
     int nn4 = 4*f.n*f.n;
@@ -389,7 +389,7 @@ void load(Archive &ar, FieldCache &f, const unsigned int version)
         f.P = NULL;
     }
     if(W_is_null == 0){
-        f.W = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>)*nn4);  
+        f.W = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>)*nn4);
         ar & bs::make_nvp("W", bs::make_array(f.W, nn4));
     } else {
         f.W = NULL;
@@ -674,7 +674,7 @@ void load(Archive &ar, Solution &soln, const unsigned int version)
     soln.kx = (double*)S4_malloc(sizeof(double)*2*soln.n_G);
     soln.ky = soln.kx+soln.n_G;
     S4_TRACE("Allocated memory\n");
-        
+
     S4_TRACE("nG on struct: %d\n", soln.n_G);
     // for (size_t i = 0; i < 2*soln.n_G; i++) {
     //     ar & bs::make_nvp("G",soln.G[i]);
@@ -709,13 +709,13 @@ void load(Archive &ar, Solution &soln, const unsigned int version)
 int Simulation_SaveSolution(const Simulation *S, const char *fname){
 	S4_TRACE("> Simulation_SaveSolution(S=%p, layer_bands=%p (%p), layer_solution=%p (%p)) [omega=%f]\n",
 		S,
-		S->solution->layer_bands, (NULL != S->solution->layer_bands ? *S->solution->layer_bands : NULL), 
+		S->solution->layer_bands, (NULL != S->solution->layer_bands ? *S->solution->layer_bands : NULL),
         S->solution->layer_solution, (NULL != S->solution->layer_solution ? *S->solution->layer_solution : NULL),
         S->omega[0]);
     // We need to quickly set n_G on the solution, all the bands and //
     // all the layer solutions because the serialization code needs i  t
-    // S4_TRACE("Filename: ");                                              
-    // while (*fname != '\0') {                                           
+    // S4_TRACE("Filename: ");
+    // while (*fname != '\0') {
     //     S4_TRACE("%c\n", *(fname++));
     // }
     // S4_TRACE("\n");
@@ -779,12 +779,12 @@ int Simulation_SaveSolution(const Simulation *S, const char *fname){
         }
     } else {
         S4_TRACE("Bad extension\n");
-        return 2; 
+        return 2;
     }
     ofs.close();
 	S4_TRACE("< Simulation_SaveSolution(S=%p, layer_bands=%p (%p), layer_solution=%p (%p)) [omega=%f]\n",
 		S,
-		S->solution->layer_bands, (NULL != S->solution->layer_bands ? *S->solution->layer_bands : NULL), 
+		S->solution->layer_bands, (NULL != S->solution->layer_bands ? *S->solution->layer_bands : NULL),
         S->solution->layer_solution, (NULL != S->solution->layer_solution ? *S->solution->layer_solution : NULL),
         S->omega[0]);
     return 0;
@@ -792,8 +792,8 @@ int Simulation_SaveSolution(const Simulation *S, const char *fname){
 
 int Simulation_LoadSolution(Simulation *S, const char *fname){
 	S4_TRACE("> Simulation_LoadSolution [omega=%f]\n", S->omega[0]);
-    // S4_TRACE("Filename: ");                                              
-    // while (*fname != '\0') {                                           
+    // S4_TRACE("Filename: ");
+    // while (*fname != '\0') {
     //     S4_TRACE("%c", *(fname++));
     // }
     // for(int i=0; i < strlen(fname); i++){
@@ -2216,7 +2216,7 @@ int Simulation_GetPropagationConstants(Simulation *S, Layer *L, double *q){
 
     // layer_bands->q contains 2*n std::complex<double>. The pointer to q
     // passed in to this function hopefully points to a memory space that can
-    // fit 4*n doubles (2 * 2n) 
+    // fit 4*n doubles (2 * 2n)
 	for(int i = 0; i < 2*n; ++i){
 		q[2*i+0] = layer_bands->q[i].real();
 		q[2*i+1] = layer_bands->q[i].imag();
@@ -2328,7 +2328,7 @@ void Simulation_DestroySolution(Simulation *S){
 		sol->layer_bands = NULL;
 		sol->layer_solution = NULL;
 	}
-	S4_free(S->solution); 
+	S4_free(S->solution);
     S->solution = NULL;
 
 	S4_TRACE("< Simulation_DestroySolution [omega=%f]\n", S->omega[0]);
@@ -2964,7 +2964,7 @@ int Simulation_GetField(Simulation *S, const double r[3], double fE[6], double f
         if(0 != M->type){
             return -1;
         }
-        epsilon = std::complex<double>(M->eps.s[0], M->eps.s[1]);    
+        epsilon = std::complex<double>(M->eps.s[0], M->eps.s[1]);
     }
     if(P != NULL && W != NULL){
         S4_VERB(1, "Using Weismann Formulation\n");
@@ -3069,7 +3069,7 @@ int Simulation_GetFieldPlane(Simulation *S, int nxy[2], double zz, double *E, do
         // indexed into when computing real space reconstructions of E from
         // Dnormal. I think it makes sense to do it out here instead of passing
         // the whole Simulation struct and Layer structs into GetField and
-        // essentially implementing the same logic we would out here in there. 
+        // essentially implementing the same logic we would out here in there.
         // Also, there are only a handful of unique values of epsilon (one for
         // each shape). However, we would have to compute which indices
         // correspond to which value and pass that into GetField anyway, so
@@ -3077,7 +3077,7 @@ int Simulation_GetFieldPlane(Simulation *S, int nxy[2], double zz, double *E, do
         // array of only unique values, then another array (of size = number of
         // sampling points) that is filled with pointers to the correct element
         // of the array containing the unique epsilon values to save space.
-        size_t ns = nxy[0]*nxy[1]; 
+        size_t ns = nxy[0]*nxy[1];
         epsilon = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>)*ns);
         Material *M;
         int shape_index;
@@ -3103,7 +3103,7 @@ int Simulation_GetFieldPlane(Simulation *S, int nxy[2], double zz, double *E, do
                 if(0 != M->type){
                     return -1;
                 }
-                std::complex<double> eps_val(M->eps.s[0], M->eps.s[1]);    
+                std::complex<double> eps_val(M->eps.s[0], M->eps.s[1]);
                 epsilon[iu+iv*nxy[0]] = eps_val;
             }
         }
