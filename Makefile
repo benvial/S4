@@ -21,17 +21,23 @@
 # BLAS_INC = -I${MKLROOT}/include
 # LAPACK_INC =
 
-BLAS_LIB = -L$(PROGRAMS_PATH)/ant_hpc/openblas/lib -lopenblas
+# BLAS_LIB = -L$(PROGRAMS_PATH)/ant_hpc/openblas/lib -lopenblas
+# LAPACK_LIB =
+# BLAS_INC = -I$(PROGRAMS_PATH)/ant_hpc/openblas/include
+# LAPACK_INC =
+
+BLAS_LIB = -L$(PROGRAMS_PATH)/onelab_gnu_serial/lib -lopenblas
 LAPACK_LIB =
-BLAS_INC = -I$(PROGRAMS_PATH)/ant_hpc/openblas/include
+BLAS_INC = -I$(PROGRAMS_PATH)/onelab_gnu_serial/include
 LAPACK_INC =
+
 
 # Specify the flags for Lua headers and libraries (only needed for Lua frontend)
 # Recommended: build lua in the current directory, and link against this local version
 # LUA_INC = -I./lua-5.2.4/install/include
 # LUA_LIB = -L./lua-5.2.4/install/lib -llua -ldl -lm
-LUA_INC = -I$(PROGRAMS_PATH)/lua-5.3.4/src
-LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
+# LUA_INC = -I$(PROGRAMS_PATH)/lua-5.3.4/src
+# LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
 
 # OPTIONAL
 # Typically if installed,
@@ -42,8 +48,12 @@ LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
 #  May need to link libraries properly as with blas and lapack above
 # FFTW3_INC =
 # FFTW3_LIB = -lfftw3
-FFTW3_INC = -I$(PROGRAMS_PATH)/ant_hpc/include
-FFTW3_LIB = -L$(PROGRAMS_PATH)/ant_hpc/lib -lfftw3
+# FFTW3_INC = -I$(PROGRAMS_PATH)/ant_hpc/include
+# FFTW3_LIB = -L$(PROGRAMS_PATH)/ant_hpc/lib -lfftw3
+FFTW3_INC = -I$(HOME)/.local/include
+FFTW3_LIB = -L$(HOME)/.local/lib -lfftw3
+
+
 
 # Typically,
 #  PTHREAD_INC = -DHAVE_UNISTD_H
@@ -104,8 +114,8 @@ CXXFLAGS += -O3 -Wall -march=native -fPIC -fno-strict-aliasing
 # options for Sampler module
 OPTFLAGS = -O3 -fPIC
 
-# OBJDIR = ./build
-OBJDIR = $(PROGRAMS_PATH)/S4_new/build_gnu_ant_hpc
+OBJDIR = ./build
+# OBJDIR = $(PROGRAMS_PATH)/S4_new/build_gnu_ant_hpc
 S4_BINNAME = $(OBJDIR)/S4
 S4_LIBNAME = $(OBJDIR)/libS4.a
 S4r_LIBNAME = $(OBJDIR)/libS4r.a
