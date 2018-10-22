@@ -598,7 +598,7 @@ static PyObject *S4SpectrumSampler_new(PyTypeObject *type, PyObject *args, PyObj
 	SpectrumSampler_Options options = {33, 0.001, 10, 1e-6, 0};
 	PyObject *py_expectBool = NULL;
 	S4SpectrumSampler *self;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "dd|i|d|d|d|O!:SpectrumSampler_New", \
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "dd|idddO!:SpectrumSampler_New", \
 		kwlist, &x0, &x1, &options.initial_num_points, &options.range_threshold,\
 		&options.max_bend, &options.min_dx, &PyBool_Type, &py_expectBool))
 		return NULL;
@@ -1203,9 +1203,9 @@ static PyObject *S4Sim_GetPropagationConstants(S4Sim *self, PyObject *args, PyOb
 		return NULL;
 	}
 	n = Simulation_GetNumG(&(self->S), &G);
-    int n2 = 2*n; 
+    int n2 = 2*n;
     // q vector in S4 contains 2*n complex doubles, meaning we need a memory
-    // space that can accomodate 4*n doubles 
+    // space that can accomodate 4*n doubles
 	q = (double*)malloc(sizeof(double)*2*n2);
 	ret = Simulation_GetPropagationConstants(&(self->S), layer, q);
 	if(0 != ret){
@@ -1476,12 +1476,12 @@ static PyObject *S4Sim_GetFieldsOnGridNumpy(S4Sim *self, PyObject *args, PyObjec
   /* PyArray_Descr* desc = PyArray_DescrFromType(NPY_COMPLEX128); */
   Earr = PyArray_SimpleNewFromData(3, dims, NPY_COMPLEX128, Efields);
   /* PyArray_Dims new_dims; */
-  /* npy_intp tmp[3] = {1, 0, 2}; */ 
+  /* npy_intp tmp[3] = {1, 0, 2}; */
   /* new_dims.ptr = tmp; */
   /* new_dims.len = 3; */
   /* Earr = PyArray_Transpose(Earr, &new_dims); */
   /* npy_intp *strides = PyArray_STRIDES(Earr); */
-  /* npy_intp temp; */ 
+  /* npy_intp temp; */
   /* temp = strides[0]; */
   /* strides[0] = strides[1]; */
   /* strides[1] = temp; */
@@ -1506,7 +1506,7 @@ static PyObject *S4Sim_GetFieldsOnGridNumpy(S4Sim *self, PyObject *args, PyObjec
   /* if (!(EHfields = PyArray_Zeros(4, &dims, desc, 0))) { */
   /*   goto fail; */
   /* } */
-  
+
   /* return EHfields; */
   return Py_BuildValue("(OO)", Earr, Harr);
 
@@ -2171,7 +2171,7 @@ static PyMethodDef S4_funcs[] = {
 	{"SolveInParallel"	, (PyCFunction)S4_SolveInParallel, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SolveInParallel(layer, sim_obj) -> None")},
 	{ "NewInterpolator"	, (PyCFunction)S4_NewInterpolator, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("NewInterpolator(type, table) -> new S4 interpolator object") },
 	//{"PrintTuple"		, (PyCFunction)S4_PrintTuple, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("PrintTuple(tuple) -> None")},
-	{ "NewSpectrumSampler", (PyCFunction)S4_NewSpectrumSampler, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("NewSpectrumSampler() -> new S4 spectrum sampler onject")},
+	{ "NewSpectrumSampler", (PyCFunction)S4_NewSpectrumSampler, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("NewSpectrumSampler() -> new S4 spectrum sampler object")},
 	{NULL , NULL} /* sentinel */
 };
 

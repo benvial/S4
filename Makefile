@@ -1,7 +1,17 @@
+#!/usr/bin/env bash
+
 # To build:
 #   make <target>
 # Use the 'lib' target first to build the library, then either the Lua
 # or Python targets are 'S4lua' and 'python_ext', respectively.
+
+# BUILD_NAME=gnu_ant_hpc
+BUILD_NAME=gnu
+
+# OBJDIR = ./build
+# OBJDIR = ./build/gnu
+OBJDIR = ./build/$(BUILD_NAME)
+
 
 # Set these to the flags needed to link against BLAS and Lapack.
 #  If left blank, then performance may be very poor.
@@ -21,23 +31,33 @@
 # BLAS_INC = -I${MKLROOT}/include
 # LAPACK_INC =
 
-# BLAS_LIB = -L$(PROGRAMS_PATH)/ant_hpc/openblas/lib -lopenblas
-# LAPACK_LIB =
-# BLAS_INC = -I$(PROGRAMS_PATH)/ant_hpc/openblas/include
-# LAPACK_INC =
 
-BLAS_LIB = -L$(PROGRAMS_PATH)/onelab_gnu_serial/lib -lopenblas
 LAPACK_LIB =
-BLAS_INC = -I$(PROGRAMS_PATH)/onelab_gnu_serial/include
 LAPACK_INC =
+
+# ### ANTENNA CLUSTER
+# BLAS_LIB = -L$(PROGRAMS_PATH)/ant_hpc/openblas/lib -lopenblas
+# BLAS_INC = -I$(PROGRAMS_PATH)/ant_hpc/openblas/include
+
+### LOCAL QMUL
+BLAS_LIB = -L$(PROGRAMS_PATH)/openblas/lib -lopenblas
+BLAS_INC = -I$(PROGRAMS_PATH)/openblas/include
+### LAPTOP
+# BLAS_LIB = -L$(PROGRAMS_PATH)/onelab_gnu_serial/lib -lopenblas
+# LAPACK_LIB =
+# BLAS_INC = -I$(PROGRAMS_PATH)/onelab_gnu_serial/include
+# LAPACK_INC =
 
 
 # Specify the flags for Lua headers and libraries (only needed for Lua frontend)
 # Recommended: build lua in the current directory, and link against this local version
+
 # LUA_INC = -I./lua-5.2.4/install/include
 # LUA_LIB = -L./lua-5.2.4/install/lib -llua -ldl -lm
-# LUA_INC = -I$(PROGRAMS_PATH)/lua-5.3.4/src
-# LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
+#### ANTENNA CLUSTER and LOCAL QMUL
+### for LAPTOP comment this as Lua is installed system wide
+LUA_INC = -I$(PROGRAMS_PATH)/lua-5.3.4/src
+LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
 
 # OPTIONAL
 # Typically if installed,
@@ -48,12 +68,16 @@ LAPACK_INC =
 #  May need to link libraries properly as with blas and lapack above
 # FFTW3_INC =
 # FFTW3_LIB = -lfftw3
+
+### ANTENNA CLUSTER
 # FFTW3_INC = -I$(PROGRAMS_PATH)/ant_hpc/include
 # FFTW3_LIB = -L$(PROGRAMS_PATH)/ant_hpc/lib -lfftw3
-FFTW3_INC = -I$(HOME)/.local/include
-FFTW3_LIB = -L$(HOME)/.local/lib -lfftw3
-
-
+### LOCAL QMUL
+FFTW3_INC = -I$(PROGRAMS_PATH)/fftw/include
+FFTW3_LIB = -L$(PROGRAMS_PATH)/fftw/lib -lfftw3
+### LAPTOP
+# FFTW3_INC = -I$(HOME)/.local/include
+# FFTW3_LIB = -L$(HOME)/.local/lib -lfftw3
 
 # Typically,
 #  PTHREAD_INC = -DHAVE_UNISTD_H
@@ -114,8 +138,6 @@ CXXFLAGS += -O3 -Wall -march=native -fPIC -fno-strict-aliasing
 # options for Sampler module
 OPTFLAGS = -O3 -fPIC
 
-OBJDIR = ./build
-# OBJDIR = $(PROGRAMS_PATH)/S4_new/build_gnu_ant_hpc
 S4_BINNAME = $(OBJDIR)/S4
 S4_LIBNAME = $(OBJDIR)/libS4.a
 S4r_LIBNAME = $(OBJDIR)/libS4r.a
@@ -125,7 +147,8 @@ S4r_LIBNAME = $(OBJDIR)/libS4r.a
 #### and PREFIX if you want to install boost to a different location
 
 # Specify the paths to the boost include and lib directories
-BOOST_PREFIX=${CURDIR}/S4
+# BOOST_PREFIX=${CURDIR}/S4
+BOOST_PREFIX=${CURDIR}/S4/boost/$(BUILD_NAME)
 BOOST_INC = -I$(BOOST_PREFIX)/include
 BOOST_LIBS = -L$(BOOST_PREFIX)/lib/ -lboost_serialization
 
@@ -135,18 +158,18 @@ BOOST_LIBS = -L$(BOOST_PREFIX)/lib/ -lboost_serialization
 # # BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_system
 # BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_python
 # BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_numpy
-BOOST_URL=https://sourceforge.net/projects/boost/files/boost/1.67.0/boost_1_67_0.tar.gz
+BOOST_URL=https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
 BOOST_FILE=boost.tar.gz
 # Target for downloading boost from above URL
 $(BOOST_FILE):
 	wget $(BOOST_URL) -O $(BOOST_FILE)
 
 # Target for extracting boost from archive and compiling. Depends on download target above
-${CURDIR}/S4/lib: $(BOOST_FILE)
+${BOOST_PREFIX}/lib: $(BOOST_FILE)
 	$(eval BOOST_DIR := $(shell tar tzf $(BOOST_FILE) | sed -e 's@/.*@@' | uniq))
 	@echo Boost dir is $(BOOST_DIR)
-	tar -xzvf $(BOOST_FILE)
-	mv $(BOOST_DIR) boost_src
+	# tar -xzvf $(BOOST_FILE)
+	# mv $(BOOST_DIR) boost_src
 	cd boost_src && ./bootstrap.sh --with-libraries=serialization --prefix=$(BOOST_PREFIX) && ./b2 install
 # Final target which pulls everything together
 boost: $(BOOST_PREFIX)/lib
