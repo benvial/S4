@@ -6,7 +6,11 @@
 # or Python targets are 'S4lua' and 'python_ext', respectively.
 
 # BUILD_NAME=gnu_ant_hpc
-BUILD_NAME=gnu
+# BUILD_NAME=gnu
+BUILD_NAME=serial/gnu
+# BUILD_NAME=serial/intel
+
+INTEL=0
 
 # OBJDIR = ./build
 # OBJDIR = ./build/gnu
@@ -32,22 +36,22 @@ OBJDIR = ./build/$(BUILD_NAME)
 # LAPACK_INC =
 
 
-LAPACK_LIB =
-LAPACK_INC =
-
 # ### ANTENNA CLUSTER
 # BLAS_LIB = -L$(PROGRAMS_PATH)/ant_hpc/openblas/lib -lopenblas
 # BLAS_INC = -I$(PROGRAMS_PATH)/ant_hpc/openblas/include
 
 ### LOCAL QMUL
-BLAS_LIB = -L$(PROGRAMS_PATH)/openblas/lib -lopenblas
-BLAS_INC = -I$(PROGRAMS_PATH)/openblas/include
+# BLAS_LIB = -L$(PROGRAMS_PATH)/openblas/lib -lopenblas
+# BLAS_INC = -I$(PROGRAMS_PATH)/openblas/include
 ### LAPTOP
-# BLAS_LIB = -L$(PROGRAMS_PATH)/onelab_gnu_serial/lib -lopenblas
-# LAPACK_LIB =
-# BLAS_INC = -I$(PROGRAMS_PATH)/onelab_gnu_serial/include
-# LAPACK_INC =
+## gnu
+BLAS_LIB = -L$(PROGRAMS_PATH)/openblas/serial/gnu/lib -lopenblas
+BLAS_INC = -I$(PROGRAMS_PATH)/openblas/serial/gnu/include
+## intel
+# BLAS_LIB = -L$(HOME)/intel/compilers_and_libraries_2019.2.187/linux/mkl/lib/intel64_lin -lmkl_intel_ilp64 -lmkl_intel_thread  -lmkl_core -liomp5 -lpthread -lm -ldl
+# BLAS_INC = -I$(HOME)/intel/compilers_and_libraries_2019.2.187/linux/mkl/include
 
+# -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
 
 # Specify the flags for Lua headers and libraries (only needed for Lua frontend)
 # Recommended: build lua in the current directory, and link against this local version
@@ -56,8 +60,8 @@ BLAS_INC = -I$(PROGRAMS_PATH)/openblas/include
 # LUA_LIB = -L./lua-5.2.4/install/lib -llua -ldl -lm
 #### ANTENNA CLUSTER and LOCAL QMUL
 ### for LAPTOP comment this as Lua is installed system wide
-LUA_INC = -I$(PROGRAMS_PATH)/lua-5.3.4/src
-LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
+# LUA_INC = -I$(PROGRAMS_PATH)/lua-5.3.4/src
+# LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
 
 # OPTIONAL
 # Typically if installed,
@@ -73,17 +77,21 @@ LUA_LIB = -L$(PROGRAMS_PATH)/lua-5.3.4/src -llua -ldl -lm
 # FFTW3_INC = -I$(PROGRAMS_PATH)/ant_hpc/include
 # FFTW3_LIB = -L$(PROGRAMS_PATH)/ant_hpc/lib -lfftw3
 ### LOCAL QMUL
-FFTW3_INC = -I$(PROGRAMS_PATH)/fftw/include
-FFTW3_LIB = -L$(PROGRAMS_PATH)/fftw/lib -lfftw3
+# FFTW3_INC = -I$(PROGRAMS_PATH)/fftw/include
+# FFTW3_LIB = -L$(PROGRAMS_PATH)/fftw/lib -lfftw3
 ### LAPTOP
-# FFTW3_INC = -I$(HOME)/.local/include
-# FFTW3_LIB = -L$(HOME)/.local/lib -lfftw3
+## gnu
+FFTW3_INC = -I$(PROGRAMS_PATH)/fftw/serial/gnu/include
+FFTW3_LIB = -L$(PROGRAMS_PATH)/fftw/serial/gnu/lib -lfftw3
+## intel
+# FFTW3_INC = -I$(HOME)/intel/compilers_and_libraries_2019.2.187/linux/mkl/include
+# FFTW3_LIB = -L$(HOME)/intel/compilers_and_libraries_2019.2.187/linux/mkl/lib/intel64_lin -lfftw3
 
 # Typically,
-#  PTHREAD_INC = -DHAVE_UNISTD_H
-#  PTHREAD_LIB = -lpthread
-PTHREAD_INC =
-PTHREAD_LIB =
+ PTHREAD_INC = -DHAVE_UNISTD_H
+ PTHREAD_LIB = -lpthread
+# PTHREAD_INC =
+# PTHREAD_LIB =
 
 # OPTIONAL
 # If not installed:
@@ -113,25 +121,20 @@ S4_PROF = 0
 
 
 # If compiling with MPI, the following must be modified to the proper MPI compilers
-# CC = icc
-# CXX = icpc
-
-
+# 
 CC = gcc
 CXX = g++
+CFLAGS   += -O3 -Wall -march=native -fcx-limited-range -fPIC
+CXXFLAGS += -O3 -Wall -march=native -fcx-limited-range -fPIC
 
-#CFLAGS += -O3 -fPIC
-# CFLAGS = -Wall -O3 -msse3 -msse2 -msse -fPIC
 #
-# CFLAGS   += -O3 -Wall -march=native -fcx-limited-range -fno-exceptions -fPIC
-# CXXFLAGS += -O3 -Wall -march=native -fcx-limited-range -fno-exceptions -fPIC
-CFLAGS   += -O3 -Wall -march=native -fPIC -fno-strict-aliasing
-CXXFLAGS += -O3 -Wall -march=native -fPIC -fno-strict-aliasing
-#
-# CFLAGS   += -fPIC -xHost -O3 -Wall -no-prec-div -fp-model fast=2 -fPIC -DMKL_ILP64 -mkl=parallel
-# CXXFLAGS += -fPIC -xHost -O3 -Wall -no-prec-div -fp-model fast=2 -fPIC -DMKL_ILP64 -mkl=parallel
-#
-#
+# 
+# CC = icc
+# CXX = icpc
+# CFLAGS   += -fPIC -xHost -O3 -Wall# -no-prec-div -fp-model fast=2  -DMKL_ILP64 #-mkl=parallel
+# CXXFLAGS += -fPIC -xHost -O3 -Wall# -no-prec-div -fp-model fast=2  -DMKL_ILP64 #-mkl=parallel
+# 
+# 
 
 
 
@@ -407,7 +410,7 @@ FunctionSampler2D.so: modules/function_sampler_2d.c modules/function_sampler_2d.
 #### Python extension
 
 python: objdir $(S4_LIBNAME)
-	sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME) "$(LIBS)" $(BOOST_PREFIX) "$(CFLAGS)"
+	sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME) "$(LIBS)" $(BOOST_PREFIX) "$(CFLAGS)" $(INTEL)
 	python setup.py build_ext -b $(OBJDIR) -t $(OBJDIR)/tmp
 	# pip3 install --upgrade ./
 
