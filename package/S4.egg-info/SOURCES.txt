@@ -1,0 +1,6 @@
+setup.py
+S4.egg-info/PKG-INFO
+S4.egg-info/SOURCES.txt
+S4.egg-info/dependency_links.txt
+S4.egg-info/top_level.txt
+src/main_python.c

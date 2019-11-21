@@ -23,7 +23,7 @@ else:
 	os.environ["CXX"] = "/usr/bin/g++"
 
 libs = ['S4', 'stdc++']
-libs.extend(["svml","imf"])
+# libs.extend(["svml","imf"])
 libs_ = [lib for lib in '$LIBS'.split()]
 
 lib_dirs = ['$OBJDIR']
