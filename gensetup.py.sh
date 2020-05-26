@@ -3,13 +3,11 @@
 OBJDIR="$1"
 LIBFILE="$2"
 LIBS="$3"
-BOOST_PREFIX="$4"
-CFLAGS="$5"
-INTEL="$6"
+CFLAGS="$4"
+INTEL="$5"
 
 echo "LIBS: $LIBS"
 echo "LIBFILE: $LIBFILE"
-echo "BOOST PREFIX: $BOOST_PREFIX"
 
 cat <<SETUPPY > setup.py
 from distutils.core import setup, Extension
@@ -27,7 +25,6 @@ libs = ['S4', 'stdc++']
 libs_ = [lib for lib in '$LIBS'.split()]
 
 lib_dirs = ['$OBJDIR']
-lib_dirs.extend(['$BOOST_PREFIX/lib'])
 print(libs_)
 
 for  l in libs_:
@@ -36,6 +33,8 @@ for  l in libs_:
 	else:
 		libs.append(l[2:])
 	
+lib_dirs = list(set(lib_dirs))
+
 print("-"*74)
 print("libs: ", libs)
 print("lib_dirs: ", lib_dirs)
@@ -46,7 +45,7 @@ print("-"*74)
 # lib_dirs.extend(["$MKLROOT/lib/intel64"])
 # lib_dirs.extend(["/import/linux/intel/clusterstudio/15.0.2/lib/intel64"])
 
-include_dirs = ['$BOOST_PREFIX/include', np.get_include()]
+include_dirs = [np.get_include()]
 extra_link_args = ['$LIBFILE']
 extra_compile_args=[]
 extra_compile_args.extend(["-std=gnu99"])
@@ -60,7 +59,7 @@ S4module = Extension('S4',
   include_dirs = include_dirs,
   # extra_objects = ['$LIBFILE'],
 	extra_link_args = extra_link_args,
-  runtime_library_dirs=['$BOOST_PREFIX/lib'],
+  # runtime_library_dirs=['$BOOST_PREFIX/lib'],
 	extra_compile_args=extra_compile_args
 )
 

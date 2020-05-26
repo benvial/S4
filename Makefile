@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+
+NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
+MAKEFLAGS += -j$(NPROCS)
+
 # To build:
 #   make <target>
 # Use the 'lib' target first to build the library, then either the Lua
@@ -7,7 +11,7 @@
 
 # BUILD_NAME=gnu_ant_hpc
 # BUILD_NAME=gnu
-BUILD_NAME=serial/gnu
+BUILD_NAME=conda#serial/gnu
 # BUILD_NAME=serial/intel
 
 INTEL=0
@@ -45,8 +49,8 @@ OBJDIR = ./build/$(BUILD_NAME)
 # BLAS_INC = -I$(PROGRAMS_PATH)/openblas/include
 ### LAPTOP
 ## gnu
-BLAS_LIB = -L$(PROGRAMS_PATH)/openblas/serial/gnu/lib -lopenblas
-BLAS_INC = -I$(PROGRAMS_PATH)/openblas/serial/gnu/include
+BLAS_INC = -I$(CONDA)/include
+BLAS_LIB = -L$(CONDA)/lib -lopenblas
 ## intel
 # BLAS_LIB = -L$(HOME)/intel/compilers_and_libraries_2019.2.187/linux/mkl/lib/intel64_lin -lmkl_intel_ilp64 -lmkl_intel_thread  -lmkl_core -liomp5 -lpthread -lm -ldl
 # BLAS_INC = -I$(HOME)/intel/compilers_and_libraries_2019.2.187/linux/mkl/include
@@ -81,8 +85,8 @@ BLAS_INC = -I$(PROGRAMS_PATH)/openblas/serial/gnu/include
 # FFTW3_LIB = -L$(PROGRAMS_PATH)/fftw/lib -lfftw3
 ### LAPTOP
 ## gnu
-FFTW3_INC = -I$(PROGRAMS_PATH)/fftw/serial/gnu/include
-FFTW3_LIB = -L$(PROGRAMS_PATH)/fftw/serial/gnu/lib -lfftw3
+FFTW3_INC = -I$(CONDA)/include
+FFTW3_LIB = -L$(CONDA)/lib -lfftw3
 ## intel
 # FFTW3_INC = -I$(HOME)/intel/compilers_and_libraries_2019.2.187/linux/mkl/include
 # FFTW3_LIB = -L$(HOME)/intel/compilers_and_libraries_2019.2.187/linux/mkl/lib/intel64_lin -lfftw3
@@ -99,8 +103,16 @@ FFTW3_LIB = -L$(PROGRAMS_PATH)/fftw/serial/gnu/lib -lfftw3
 # Typically, if installed:
 #CHOLMOD_INC = -I/usr/include/suitesparse
 #CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
-# CHOLMOD_INC = -I/usr/include/suitesparse
-# CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
+CHOLMOD_INC = -I$(CONDA)/include
+CHOLMOD_LIB = -L$(CONDA)/lib -lcholmod -lamd -lcolamd -lcamd -lccolamd
+
+
+
+# Specify the boost library
+BOOST_INC = -I$(CONDA)/include/boost
+BOOST_LIBS = -L$(CONDA)/lib -lboost_serialization
+
+
 
 # Specify the MPI library
 # For example, on Fedora: dnf  install openmpi-devel
@@ -136,8 +148,6 @@ CXXFLAGS += -O3 -Wall -march=native -fcx-limited-range -fPIC
 #
 #
 
-
-
 # options for Sampler module
 OPTFLAGS = -O3 -fPIC
 
@@ -145,37 +155,7 @@ S4_BINNAME = $(OBJDIR)/S4
 S4_LIBNAME = $(OBJDIR)/libS4.a
 S4r_LIBNAME = $(OBJDIR)/libS4r.a
 
-#### Download, compile, and install boost serialization lib.
-#### This should all work fine, you must modify BOOST_INC, BOOST_LIBS,
-#### and PREFIX if you want to install boost to a different location
 
-# Specify the paths to the boost include and lib directories
-# BOOST_PREFIX=${CURDIR}/S4
-BOOST_PREFIX=${CURDIR}/S4/boost/$(BUILD_NAME)
-BOOST_INC = -I$(BOOST_PREFIX)/include
-BOOST_LIBS = -L$(BOOST_PREFIX)/lib/ -lboost_serialization
-
-# BOOST_INC =
-# BOOST_LIBS =
-
-# # BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_system
-# BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_python
-# BOOST_LIBS += -L$(BOOST_PREFIX)/lib/ -lboost_numpy
-BOOST_URL=https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz
-BOOST_FILE=boost.tar.gz
-# Target for downloading boost from above URL
-$(BOOST_FILE):
-	wget $(BOOST_URL) -O $(BOOST_FILE)
-
-# Target for extracting boost from archive and compiling. Depends on download target above
-${BOOST_PREFIX}/lib: $(BOOST_FILE)
-	$(eval BOOST_DIR := $(shell tar tzf $(BOOST_FILE) | sed -e 's@/.*@@' | uniq))
-	@echo Boost dir is $(BOOST_DIR)
-	# tar -xzvf $(BOOST_FILE)
-	# mv $(BOOST_DIR) boost_src
-	cd boost_src && ./bootstrap.sh --with-libraries=serialization --prefix=$(BOOST_PREFIX) && ./b2 install
-# Final target which pulls everything together
-boost: $(BOOST_PREFIX)/lib
 
 ##################### DO NOT EDIT BELOW THIS LINE #####################
 

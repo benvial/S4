@@ -230,7 +230,7 @@ FunctionSampler2D.so: modules/function_sampler_2d.c modules/function_sampler_2d.
 #### Python extension
 
 python: objdir $(S4_LIBNAME)
-	sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME) "$(LIBS)" $(BOOST_PREFIX) "$(CFLAGS)" $(INTEL)
+	sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME) "$(LIBS)" "$(CFLAGS)" $(INTEL)
 	python setup.py build_ext -b $(OBJDIR) -t $(OBJDIR)/tmp
 	# pip3 install --upgrade ./
 
